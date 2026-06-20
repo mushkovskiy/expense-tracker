@@ -12,7 +12,8 @@ import type { Request, Response } from 'express';
 import { TYPES } from '../../container/types';
 import { AuthMiddleware } from '../../middleware/auth.middleware';
 import { validateBody } from '../../middleware/validate.middleware';
-import { AuthService } from './auth.service';
+import type { AuthService } from './auth.service';
+
 
 @controller('/auth')
 export class AuthController {

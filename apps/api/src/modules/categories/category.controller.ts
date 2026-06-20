@@ -1,4 +1,5 @@
 import { createCategorySchema, updateCategorySchema } from '@repo/validation';
+import type { Response } from 'express';
 import { inject } from 'inversify';
 import {
   controller,
@@ -10,11 +11,11 @@ import {
   requestParam,
   response,
 } from 'inversify-express-utils';
-import type { Response } from 'express';
 import { TYPES } from '../../container/types';
 import { AuthMiddleware } from '../../middleware/auth.middleware';
 import { validateBody } from '../../middleware/validate.middleware';
-import { CategoryService } from './category.service';
+import type { CategoryService } from './category.service';
+
 
 @controller('/categories', AuthMiddleware)
 export class CategoryController {

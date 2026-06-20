@@ -1,4 +1,5 @@
 import { createBudgetSchema, updateBudgetSchema } from '@repo/validation';
+import type { Response } from 'express';
 import { inject } from 'inversify';
 import {
   controller,
@@ -10,11 +11,10 @@ import {
   requestParam,
   response,
 } from 'inversify-express-utils';
-import type { Response } from 'express';
 import { TYPES } from '../../container/types';
 import { AuthMiddleware } from '../../middleware/auth.middleware';
 import { validateBody } from '../../middleware/validate.middleware';
-import { BudgetService } from './budget.service';
+import type { BudgetService } from './budget.service';
 
 @controller('/budgets', AuthMiddleware)
 export class BudgetController {

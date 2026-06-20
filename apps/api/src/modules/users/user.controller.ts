@@ -1,9 +1,10 @@
+import type { Response } from 'express';
 import { inject } from 'inversify';
 import { controller, httpGet, response } from 'inversify-express-utils';
-import type { Response } from 'express';
 import { TYPES } from '../../container/types';
 import { AuthMiddleware } from '../../middleware/auth.middleware';
-import { UserService } from './user.service';
+import type { UserService } from './user.service';
+
 
 @controller('/users', AuthMiddleware)
 export class UserController {
