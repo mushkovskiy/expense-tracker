@@ -1,7 +1,8 @@
 import { type Ref, getModelForClass, index, prop } from '@typegoose/typegoose';
+import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 
 @index({ email: 1 }, { unique: true })
-export class User {
+export class User extends TimeStamps {
   @prop({ required: true, unique: true, lowercase: true, trim: true })
   public email!: string;
 

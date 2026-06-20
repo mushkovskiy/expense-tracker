@@ -1,12 +1,13 @@
+import type { NextFunction, Request, Response } from 'express';
 import { injectable } from 'inversify';
 import { BaseMiddleware } from 'inversify-express-utils';
-import type { NextFunction, Request, Response } from 'express';
+import { AUTH_COOKIE_NAME } from '../utils/cookie';
 import { verifyAccessToken } from '../utils/jwt';
 
 @injectable()
 export class AuthMiddleware extends BaseMiddleware {
   public handler(req: Request, res: Response, next: NextFunction): void {
-    const token = req.cookies?.accessToken as string | undefined;
+    const token = req.cookies?.[AUTH_COOKIE_NAME] as string | undefined;
 
     if (!token) {
       res.status(401).json({ success: false, error: { message: 'Unauthorized' } });

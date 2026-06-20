@@ -1,14 +1,17 @@
 import { injectable } from 'inversify';
+import { UserModel } from '../../models/user.model';
 
 @injectable()
 export class UserService {
-  // TODO: implement findById - fetch user from UserModel
-  async findById(_id: string) {
-    throw new Error('Not implemented');
+  async findById(id: string) {
+    return UserModel.findById(id);
   }
 
-  // TODO: implement findByEmail - fetch user from UserModel
-  async findByEmail(_email: string) {
-    throw new Error('Not implemented');
+  async findByEmail(email: string) {
+    return UserModel.findOne({ email });
+  }
+
+  async create(data: { email: string; passwordHash: string; name: string }) {
+    return UserModel.create(data);
   }
 }

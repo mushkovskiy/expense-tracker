@@ -1,4 +1,6 @@
 import { loginSchema, registerSchema } from '@repo/validation';
+import type { LoginInput, RegisterInput } from '@repo/validation';
+import type { Request, Response } from 'express';
 import { inject } from 'inversify';
 import {
   controller,
@@ -8,38 +10,44 @@ import {
   requestBody,
   response,
 } from 'inversify-express-utils';
-import type { Request, Response } from 'express';
 import { TYPES } from '../../container/types';
 import { AuthMiddleware } from '../../middleware/auth.middleware';
 import { validateBody } from '../../middleware/validate.middleware';
+import { clearAuthCookie, setAuthCookie } from '../../utils/cookie';
 import type { AuthService } from './auth.service';
-
 
 @controller('/auth')
 export class AuthController {
   constructor(@inject(TYPES.AuthService) private readonly authService: AuthService) {}
 
   @httpPost('/register', validateBody(registerSchema))
-  async register(@requestBody() _body: unknown, @response() res: Response) {
-    // TODO: call authService.register, set httpOnly cookie with access token
-    res.status(501).json({ success: false, error: { message: 'Not implemented' } });
+  async register(@requestBody() body: RegisterInput, @response() res: Response) {
+    const { user, token } = await this.authService.register(body);
+    setAuthCookie(res, token);
+    res.status(201).json({ success: true, data: { user } });
   }
 
   @httpPost('/login', validateBody(loginSchema))
-  async login(@requestBody() _body: unknown, @response() res: Response) {
-    // TODO: call authService.login, set httpOnly cookie with access token
-    res.status(501).json({ success: false, error: { message: 'Not implemented' } });
+  async login(@requestBody() body: LoginInput, @response() res: Response) {
+    const { user, token } = await this.authService.login(body);
+    setAuthCookie(res, token);
+    res.status(200).json({ success: true, data: { user } });
   }
 
   @httpPost('/logout')
   async logout(@response() res: Response) {
-    // TODO: clear access token cookie
-    res.status(501).json({ success: false, error: { message: 'Not implemented' } });
+    clearAuthCookie(res);
+    res.status(200).json({ success: true, data: { success: true } });
   }
 
   @httpGet('/me', AuthMiddleware)
   async me(@request() req: Request, @response() res: Response) {
-    // TODO: call authService.getCurrentUser using req.user.sub
-    res.status(501).json({ success: false, error: { message: 'Not implemented' } });
+    const userId = req.user?.sub;
+    if (!userId) {
+      res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
+      return;
+    }
+    const user = await this.authService.getCurrentUser(userId);
+    res.status(200).json({ success: true, data: { user } });
   }
 }

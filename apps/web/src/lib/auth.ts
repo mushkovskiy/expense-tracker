@@ -1,9 +1,19 @@
 import { cookies } from 'next/headers';
 
-const ACCESS_TOKEN_COOKIE = 'accessToken';
+const API_URL = process.env.API_URL ?? 'http://localhost:4000/api';
 
-// TODO: validate the token (e.g. by calling the API /auth/me) instead of just checking presence
 export async function isAuthenticated(): Promise<boolean> {
   const cookieStore = await cookies();
-  return cookieStore.has(ACCESS_TOKEN_COOKIE);
+  const cookieHeader = cookieStore.toString();
+
+  if (!cookieHeader) return false;
+
+  try {
+    const res = await fetch(`${API_URL}/auth/me`, {
+      headers: { cookie: cookieHeader },
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
