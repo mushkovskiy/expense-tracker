@@ -81,6 +81,24 @@ Web (`apps/web/.env.local`): `NEXT_PUBLIC_API_URL` (browser), `API_URL` (server-
 
 `src/config/env.ts` validates `MONGO_URI` and `JWT_SECRET` at startup and throws if missing.
 
+## Commit conventions
+
+Follow [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) for every commit message:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+- **type**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
+- **scope** (optional): the affected area, e.g. `api`, `web`, `auth`, `categories`
+- **description**: short, imperative, lowercase, no trailing period
+- Breaking changes: append `!` after the type/scope (`feat(api)!: ...`) and/or add a `BREAKING CHANGE:` footer
+- Body explains *why*, not *what* — the diff already shows what changed
+
 ## Current status
 
 The scaffold is complete but all business logic is stubbed with `TODO` comments and `501 Not Implemented` responses. Models, middleware, DI wiring, and validation are all in place.
