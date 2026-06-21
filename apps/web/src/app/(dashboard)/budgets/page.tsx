@@ -1,8 +1,10 @@
+import { Box, Heading } from '@radix-ui/themes';
+
 export default function BudgetsPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-semibold">Budgets</h1>
+    <Box>
+      <Heading size="6">Budgets</Heading>
       {/* TODO: list budgets, add/edit/delete forms */}
-    </div>
+    </Box>
   );
 }

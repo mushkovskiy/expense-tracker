@@ -1,5 +1,6 @@
 'use client';
 
+import { Box, Button, Card, Flex, Heading, Text, TextField } from '@radix-ui/themes';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -39,62 +40,84 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="w-full max-w-sm space-y-4">
-        <h1 className="text-2xl font-semibold">Register</h1>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-1">
-            <label htmlFor="name" className="text-sm font-medium">
-              Name
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              className="w-full rounded border px-3 py-2"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-1">
-            <label htmlFor="email" className="text-sm font-medium">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              className="w-full rounded border px-3 py-2"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-1">
-            <label htmlFor="password" className="text-sm font-medium">
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              className="w-full rounded border px-3 py-2"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded bg-black px-3 py-2 text-white disabled:opacity-50"
-          >
-            {loading ? 'Registering…' : 'Register'}
-          </button>
-        </form>
-      </div>
-    </main>
+    <Flex align="center" justify="center" style={{ minHeight: '100vh' }} p="6">
+      <Card size="3" style={{ width: '100%', maxWidth: 360 }}>
+        <Flex direction="column" gap="4">
+          <Heading size="6">Register</Heading>
+          {error && (
+            <Text color="red" size="2">
+              {error}
+            </Text>
+          )}
+          <form onSubmit={handleSubmit}>
+            <Flex direction="column" gap="4">
+              <Box>
+                <Text
+                  as="label"
+                  htmlFor="name"
+                  size="2"
+                  weight="medium"
+                  mb="1"
+                  style={{ display: 'block' }}
+                >
+                  Name
+                </Text>
+                <TextField.Root
+                  id="name"
+                  name="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </Box>
+              <Box>
+                <Text
+                  as="label"
+                  htmlFor="email"
+                  size="2"
+                  weight="medium"
+                  mb="1"
+                  style={{ display: 'block' }}
+                >
+                  Email
+                </Text>
+                <TextField.Root
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </Box>
+              <Box>
+                <Text
+                  as="label"
+                  htmlFor="password"
+                  size="2"
+                  weight="medium"
+                  mb="1"
+                  style={{ display: 'block' }}
+                >
+                  Password
+                </Text>
+                <TextField.Root
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </Box>
+              <Button type="submit" disabled={loading} loading={loading} style={{ width: '100%' }}>
+                Register
+              </Button>
+            </Flex>
+          </form>
+        </Flex>
+      </Card>
+    </Flex>
   );
 }

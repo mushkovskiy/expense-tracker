@@ -1,8 +1,10 @@
+import { Box, Heading } from '@radix-ui/themes';
+
 export default function ExpensesPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-semibold">Expenses</h1>
+    <Box>
+      <Heading size="6">Expenses</Heading>
       {/* TODO: list expenses, add/edit/delete forms */}
-    </div>
+    </Box>
   );
 }

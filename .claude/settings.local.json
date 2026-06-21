@@ -10,7 +10,10 @@
       "Bash(pnpm build *)",
       "Bash(npx biome *)",
       "Bash(pnpm --filter api lint)",
-      "Bash(pnpm dev *)"
+      "Bash(pnpm dev *)",
+      "Bash(pnpm add *)",
+      "Bash(pnpm remove *)",
+      "Bash(pnpm exec *)"
     ]
   }
 }

@@ -1,8 +1,10 @@
+import { Box, Heading } from '@radix-ui/themes';
+
 export default function CategoriesPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-semibold">Categories</h1>
+    <Box>
+      <Heading size="6">Categories</Heading>
       {/* TODO: list categories, add/edit/delete forms */}
-    </div>
+    </Box>
   );
 }

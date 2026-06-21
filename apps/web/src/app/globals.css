@@ -1,3 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "@radix-ui/themes/styles.css";
+
+html,
+body {
+  height: 100%;
+}

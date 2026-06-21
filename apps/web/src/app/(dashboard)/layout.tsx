@@ -1,4 +1,6 @@
-import Link from 'next/link';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { Box, Flex, Link } from '@radix-ui/themes';
+import NextLink from 'next/link';
 
 export default function DashboardLayout({
   children,
@@ -6,15 +8,28 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex min-h-screen">
-      <aside className="w-48 border-r p-4">
-        <nav className="flex flex-col gap-2">
-          <Link href="/expenses">Expenses</Link>
-          <Link href="/categories">Categories</Link>
-          <Link href="/budgets">Budgets</Link>
-        </nav>
-      </aside>
-      <div className="flex-1 p-8">{children}</div>
-    </div>
+    <Flex style={{ minHeight: '100vh' }}>
+      <Box width="13rem" p="4" style={{ borderRight: '1px solid var(--gray-a5)' }}>
+        <Flex direction="column" gap="4">
+          <ThemeToggle />
+          <Flex direction="column" gap="2" asChild>
+            <nav>
+              <Link asChild>
+                <NextLink href="/expenses">Expenses</NextLink>
+              </Link>
+              <Link asChild>
+                <NextLink href="/categories">Categories</NextLink>
+              </Link>
+              <Link asChild>
+                <NextLink href="/budgets">Budgets</NextLink>
+              </Link>
+            </nav>
+          </Flex>
+        </Flex>
+      </Box>
+      <Box flexGrow="1" p="6">
+        {children}
+      </Box>
+    </Flex>
   );
 }
