@@ -109,7 +109,12 @@ export default function RegisterPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  minLength={8}
+                  maxLength={128}
                 />
+                <Text size="1" color="gray" mt="1" style={{ display: 'block' }}>
+                  Must be at least 8 characters
+                </Text>
               </Box>
               <Button type="submit" disabled={loading} loading={loading} style={{ width: '100%' }}>
                 Register
