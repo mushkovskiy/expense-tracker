@@ -1,5 +1,12 @@
 {
   "permissions": {
-    "allow": ["Bash(npm i *)"]
+    "allow": [
+      "Bash(npm i *)",
+      "Bash(pnpm --filter api build)",
+      "Bash(pnpm --filter web build)",
+      "Bash(pnpm --filter api test)",
+      "Bash(pnpm lint *)",
+      "Bash(pnpm format *)"
+    ]
   }
 }

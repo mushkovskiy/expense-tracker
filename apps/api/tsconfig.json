@@ -4,10 +4,9 @@
     "outDir": "dist",
     "rootDir": "src",
     "module": "node16",
-    "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"],

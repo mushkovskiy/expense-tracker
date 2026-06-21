@@ -16,7 +16,6 @@ import { AuthMiddleware } from '../../middleware/auth.middleware';
 import { validateBody } from '../../middleware/validate.middleware';
 import type { ExpenseService } from './expense.service';
 
-
 @controller('/expenses', AuthMiddleware)
 export class ExpenseController {
   constructor(@inject(TYPES.ExpenseService) private readonly expenseService: ExpenseService) {}

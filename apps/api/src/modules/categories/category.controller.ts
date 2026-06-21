@@ -16,7 +16,6 @@ import { AuthMiddleware } from '../../middleware/auth.middleware';
 import { validateBody } from '../../middleware/validate.middleware';
 import type { CategoryService } from './category.service';
 
-
 @controller('/categories', AuthMiddleware)
 export class CategoryController {
   constructor(@inject(TYPES.CategoryService) private readonly categoryService: CategoryService) {}

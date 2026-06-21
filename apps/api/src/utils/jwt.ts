@@ -8,7 +8,7 @@ export interface JwtPayload {
 
 export function signAccessToken(payload: JwtPayload): string {
   //@ts-expect-error
-  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN  });
+  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN });
 }
 
 export function verifyAccessToken(token: string): JwtPayload {
