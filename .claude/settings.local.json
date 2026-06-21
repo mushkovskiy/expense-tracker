@@ -6,7 +6,11 @@
       "Bash(pnpm --filter web build)",
       "Bash(pnpm --filter api test)",
       "Bash(pnpm lint *)",
-      "Bash(pnpm format *)"
+      "Bash(pnpm format *)",
+      "Bash(pnpm build *)",
+      "Bash(npx biome *)",
+      "Bash(pnpm --filter api lint)",
+      "Bash(pnpm dev *)"
     ]
   }
 }

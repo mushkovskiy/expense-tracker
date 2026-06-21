@@ -1,18 +1,19 @@
 import { type Ref, getModelForClass, index, prop } from '@typegoose/typegoose';
+import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 import { User } from './user.model';
 
-@index({ user: 1 })
-export class Category {
+@index({ user: 1, name: 1 }, { unique: true })
+export class Category extends TimeStamps {
   @prop({ ref: () => User, required: true })
   public user!: Ref<User>;
 
-  @prop({ required: true, trim: true })
+  @prop({ type: () => String, required: true, trim: true })
   public name!: string;
 
-  @prop({ required: true })
+  @prop({ type: () => String, required: true })
   public color!: string;
 
-  @prop()
+  @prop({ type: () => String })
   public icon?: string;
 }
 

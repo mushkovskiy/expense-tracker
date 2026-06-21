@@ -1,25 +1,79 @@
-import type { CreateCategoryInput, UpdateCategoryInput } from '@repo/validation';
+import type {
+  CategoryQueryInput,
+  CreateCategoryInput,
+  UpdateCategoryInput,
+} from '@repo/validation';
 import { injectable } from 'inversify';
+import { HttpError } from '../../middleware/error.middleware';
+import { CategoryModel } from '../../models/category.model';
+import { toICategory } from './category.mapper';
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 @injectable()
 export class CategoryService {
-  // TODO: implement list - return categories for the given user
-  async list(_userId: string) {
-    throw new Error('Not implemented');
+  async list(userId: string, query: CategoryQueryInput) {
+    const { search, page, pageSize } = query;
+
+    const filter: Record<string, unknown> = { user: userId };
+    if (search) {
+      filter.name = { $regex: escapeRegExp(search), $options: 'i' };
+    }
+
+    const [items, total] = await Promise.all([
+      CategoryModel.find(filter)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * pageSize)
+        .limit(pageSize),
+      CategoryModel.countDocuments(filter),
+    ]);
+
+    return {
+      items: items.map(toICategory),
+      total,
+      page,
+      pageSize,
+    };
   }
 
-  // TODO: implement create - create a category for the given user
-  async create(_userId: string, _dto: CreateCategoryInput) {
-    throw new Error('Not implemented');
+  async create(userId: string, dto: CreateCategoryInput) {
+    const existing = await CategoryModel.findOne({ user: userId, name: dto.name });
+    if (existing) {
+      throw new HttpError(409, 'Category name already exists');
+    }
+
+    const category = await CategoryModel.create({ user: userId, ...dto });
+
+    return toICategory(category);
   }
 
-  // TODO: implement update - update a category owned by the user
-  async update(_userId: string, _id: string, _dto: UpdateCategoryInput) {
-    throw new Error('Not implemented');
+  async update(userId: string, id: string, dto: UpdateCategoryInput) {
+    if (dto.name) {
+      const existing = await CategoryModel.findOne({
+        user: userId,
+        name: dto.name,
+        _id: { $ne: id },
+      });
+      if (existing) {
+        throw new HttpError(409, 'Category name already exists');
+      }
+    }
+
+    const category = await CategoryModel.findOneAndUpdate({ _id: id, user: userId }, dto, {
+      new: true,
+    });
+    if (!category) {
+      throw new HttpError(404, 'Category not found');
+    }
+    return toICategory(category);
   }
 
-  // TODO: implement remove - delete a category owned by the user
-  async remove(_userId: string, _id: string) {
-    throw new Error('Not implemented');
+  async remove(userId: string, id: string) {
+    const category = await CategoryModel.findOneAndDelete({ _id: id, user: userId });
+    if (!category) {
+      throw new HttpError(404, 'Category not found');
+    }
   }
 }

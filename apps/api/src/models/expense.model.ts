@@ -10,16 +10,16 @@ export class Expense {
   @prop({ ref: () => Category, required: true })
   public category!: Ref<Category>;
 
-  @prop({ required: true })
+  @prop({ type: () => Number, required: true })
   public amount!: number;
 
-  @prop({ required: true })
+  @prop({ type: () => String, required: true })
   public currency!: string;
 
-  @prop()
+  @prop({ type: () => String })
   public description?: string;
 
-  @prop({ required: true })
+  @prop({ type: () => Date, required: true })
   public date!: Date;
 }
 

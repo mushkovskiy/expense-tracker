@@ -8,7 +8,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "lint": "pnpm -w exec biome check .",
+    "lint": "biome check .",
     "build": "tsc --noEmit"
   },
   "dependencies": {

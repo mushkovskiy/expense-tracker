@@ -17,3 +17,20 @@ export function validateBody(schema: ZodSchema) {
     next();
   };
 }
+
+export function validateQuery(schema: ZodSchema) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const result = schema.safeParse(req.query);
+
+    if (!result.success) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Validation failed', details: result.error.flatten() },
+      });
+      return;
+    }
+
+    req.query = result.data as unknown as Request['query'];
+    next();
+  };
+}

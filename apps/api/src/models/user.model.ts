@@ -3,13 +3,13 @@ import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 
 @index({ email: 1 }, { unique: true })
 export class User extends TimeStamps {
-  @prop({ required: true, unique: true, lowercase: true, trim: true })
+  @prop({ type: () => String, required: true, unique: true, lowercase: true, trim: true })
   public email!: string;
 
-  @prop({ required: true })
+  @prop({ type: () => String, required: true })
   public passwordHash!: string;
 
-  @prop({ required: true, trim: true })
+  @prop({ type: () => String, required: true, trim: true })
   public name!: string;
 }
 
