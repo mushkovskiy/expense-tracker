@@ -15,6 +15,9 @@ export default function DashboardLayout({
           <Flex direction="column" gap="2" asChild>
             <nav>
               <Link asChild>
+                <NextLink href="/dashboard">Dashboard</NextLink>
+              </Link>
+              <Link asChild>
                 <NextLink href="/expenses">Expenses</NextLink>
               </Link>
               <Link asChild>

@@ -31,7 +31,7 @@ export default function RegisterPage() {
         return;
       }
 
-      router.push('/expenses');
+      router.push('/dashboard');
     } catch {
       setError('An unexpected error occurred');
     } finally {

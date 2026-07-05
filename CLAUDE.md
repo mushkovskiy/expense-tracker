@@ -26,7 +26,7 @@ pnpm --filter api build             # tsc compile to dist/
 ### Monorepo layout
 
 - `apps/api` — Express REST API, TypeScript, InversifyJS DI, Typegoose/MongoDB
-- `apps/web` — Next.js 16 App Router frontend, Tailwind CSS
+- `apps/web` — Next.js 16 App Router frontend, Radix Themes (no Tailwind)
 - `packages/types` — shared TypeScript interfaces and DTOs (`@repo/types`)
 - `packages/validation` — Zod schemas and inferred input types (`@repo/validation`)
 - `packages/config` — shared constants and API route strings (`@repo/config`)
@@ -72,7 +72,15 @@ Throw `HttpError(statusCode, message)` from services or controllers; `errorMiddl
 
 - Client-side: `src/lib/api-client.ts` (`apiFetch`) — thin `fetch` wrapper, always sends `credentials: 'include'`; reads `NEXT_PUBLIC_API_URL`
 - Server-side (Route Handlers): fetch directly to `API_URL` (server env var, not public) and forward `Set-Cookie` headers to the browser — this is the cookie-relay pattern used in `app/api/auth/`
+- Server Components can fetch the current user directly via `getCurrentUser()` / `isAuthenticated()` in `src/lib/auth.ts` (same cookie-relay pattern, no client round-trip)
 - Route protection: Next.js middleware (`src/middleware.ts`) checks for the `accessToken` cookie and redirects unauthenticated requests to `/login`
+
+### Frontend routes (`apps/web/src/app`)
+
+- `(auth)/login`, `(auth)/register` — public, redirect to `/dashboard` on success
+- `(dashboard)/dashboard` — post-login landing page; server component showing the user's profile card and a category selection grid (`src/components/profile-card.tsx`, `category-menu.tsx`)
+- `(dashboard)/expenses`, `(dashboard)/categories`, `(dashboard)/budgets` — feature pages, gated by the `(dashboard)/layout.tsx` sidebar
+- Protected paths are declared in two places that must stay in sync: `PROTECTED_PATHS` and `matcher` in `src/middleware.ts`
 
 ### Environment variables
 
@@ -98,6 +106,15 @@ Follow [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.
 - **description**: short, imperative, lowercase, no trailing period
 - Breaking changes: append `!` after the type/scope (`feat(api)!: ...`) and/or add a `BREAKING CHANGE:` footer
 - Body explains *why*, not *what* — the diff already shows what changed
+
+## Branching workflow
+
+Follow [GitHub Flow](https://docs.github.com/en/get-started/using-github/github-flow):
+
+- `main` is always deployable
+- Create a short-lived, descriptively named branch off `main` for any change (e.g. `feat/categories-crud`, `fix/auth-cookie-expiry`)
+- Open a pull request early for discussion; merge to `main` via PR once reviewed and checks pass
+- Delete the branch after merging
 
 ## Current status
 
