@@ -1,0 +1,961 @@
+openapi: 3.0.3
+info:
+  title: Expense Tracker API
+  description: >
+    REST API трекера расходов. Аутентификация через httpOnly cookie
+    `accessToken` (JWT). Все ответы имеют единый конверт: `{ success, data }`
+    для успеха и `{ success, error: { message } }` для ошибок.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:4000/api
+    description: Локальная разработка
+
+tags:
+  - name: auth
+    description: Регистрация, вход, выход, текущая сессия
+  - name: users
+    description: Профиль текущего пользователя
+  - name: categories
+    description: Категории расходов пользователя
+  - name: expenses
+    description: Расходы пользователя (пока не реализовано — 501)
+  - name: budgets
+    description: Бюджеты пользователя (пока не реализовано — 501)
+
+paths:
+  /auth/register:
+    post:
+      tags: [auth]
+      summary: Регистрация пользователя
+      description: Регистрирует нового пользователя и устанавливает cookie `accessToken`.
+      requestBody:
+        description: Данные для создания нового пользователя.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/registerInput'
+      responses:
+        "201":
+          description: Пользователь зарегистрирован.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userResponse'
+        "400":
+          description: Ошибка валидации данных.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationError'
+        "409":
+          description: Пользователь с таким email уже существует.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/conflictError'
+        "500":
+          description: Внутренняя ошибка сервера.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/serverError'
+
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: Вход пользователя
+      description: Проверяет учётные данные и устанавливает cookie `accessToken`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loginInput'
+      responses:
+        "200":
+          description: Успешный вход.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userResponse'
+        "400":
+          description: Ошибка валидации данных.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationError'
+        "401":
+          description: Неверный email или пароль.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/unauthorizedError'
+        "500":
+          description: Внутренняя ошибка сервера.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/serverError'
+
+  /auth/logout:
+    post:
+      tags: [auth]
+      summary: Выход пользователя
+      description: Очищает cookie `accessToken`.
+      responses:
+        "200":
+          description: Успешный выход.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/successFlagResponse'
+        "500":
+          description: Внутренняя ошибка сервера.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/serverError'
+
+  /auth/me:
+    get:
+      tags: [auth]
+      summary: Текущая сессия
+      description: Возвращает пользователя, соответствующего cookie `accessToken`.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Текущий пользователь.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userResponse'
+        "401":
+          description: Cookie отсутствует, недействительна или истекла.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/unauthorizedError'
+        "500":
+          description: Внутренняя ошибка сервера.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/serverError'
+
+  /users/me:
+    get:
+      tags: [users]
+      summary: Профиль текущего пользователя
+      description: Возвращает профиль пользователя по id из JWT.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Профиль пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userResponse'
+        "401":
+          description: Не авторизован.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/unauthorizedError'
+        "404":
+          description: Пользователь не найден.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notFoundError'
+        "500":
+          description: Внутренняя ошибка сервера.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/serverError'
+
+  /categories:
+    get:
+      tags: [categories]
+      summary: Список категорий
+      description: Возвращает постраничный список категорий текущего пользователя с опциональным поиском по имени.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Постраничный список категорий.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/paginatedCategoriesResponse'
+        "400":
+          description: Ошибка валидации query-параметров.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationError'
+        "401":
+          description: Не авторизован.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/unauthorizedError'
+        "500":
+          description: Внутренняя ошибка сервера.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/serverError'
+    post:
+      tags: [categories]
+      summary: Создание категории
+      description: Создаёт новую категорию для текущего пользователя.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createCategoryInput'
+      responses:
+        "201":
+          description: Категория создана.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/categoryResponse'
+        "400":
+          description: Ошибка валидации данных.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationError'
+        "401":
+          description: Не авторизован.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/unauthorizedError'
+        "409":
+          description: Категория с таким именем уже существует у пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/conflictError'
+        "500":
+          description: Внутренняя ошибка сервера.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/serverError'
+
+  /categories/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      tags: [categories]
+      summary: Обновление категории
+      description: Частично обновляет категорию, принадлежащую текущему пользователю.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updateCategoryInput'
+      responses:
+        "200":
+          description: Категория обновлена.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/categoryResponse'
+        "400":
+          description: Ошибка валидации данных.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationError'
+        "401":
+          description: Не авторизован.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/unauthorizedError'
+        "404":
+          description: Категория не найдена или не принадлежит пользователю.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notFoundError'
+        "409":
+          description: Другая категория с таким именем уже существует у пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/conflictError'
+        "500":
+          description: Внутренняя ошибка сервера.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/serverError'
+    delete:
+      tags: [categories]
+      summary: Удаление категории
+      description: Удаляет категорию, принадлежащую текущему пользователю.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Категория удалена.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/successFlagResponse'
+        "401":
+          description: Не авторизован.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/unauthorizedError'
+        "404":
+          description: Категория не найдена или не принадлежит пользователю.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notFoundError'
+        "500":
+          description: Внутренняя ошибка сервера.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/serverError'
+
+  /expenses:
+    get:
+      tags: [expenses]
+      summary: Список расходов (не реализовано)
+      description: >
+        Планируется: постраничный список расходов текущего пользователя.
+        Сейчас эндпоинт — заглушка, возвращает 501.
+      security:
+        - cookieAuth: []
+      responses:
+        "501":
+          description: Не реализовано.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notImplementedError'
+    post:
+      tags: [expenses]
+      summary: Создание расхода (не реализовано)
+      description: >
+        Планируется: создание расхода для текущего пользователя.
+        Тело запроса уже валидируется схемой `createExpenseInput`,
+        но обработчик — заглушка, возвращает 501.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createExpenseInput'
+      responses:
+        "400":
+          description: Ошибка валидации данных.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationError'
+        "501":
+          description: Не реализовано.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notImplementedError'
+
+  /expenses/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      tags: [expenses]
+      summary: Обновление расхода (не реализовано)
+      description: >
+        Планируется: частичное обновление расхода. Тело уже валидируется
+        схемой `updateExpenseInput`, но обработчик — заглушка, возвращает 501.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updateExpenseInput'
+      responses:
+        "400":
+          description: Ошибка валидации данных.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationError'
+        "501":
+          description: Не реализовано.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notImplementedError'
+    delete:
+      tags: [expenses]
+      summary: Удаление расхода (не реализовано)
+      description: Планируется удаление расхода. Сейчас — заглушка, возвращает 501.
+      security:
+        - cookieAuth: []
+      responses:
+        "501":
+          description: Не реализовано.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notImplementedError'
+
+  /budgets:
+    get:
+      tags: [budgets]
+      summary: Список бюджетов (не реализовано)
+      description: Планируется список бюджетов текущего пользователя. Сейчас — заглушка, возвращает 501.
+      security:
+        - cookieAuth: []
+      responses:
+        "501":
+          description: Не реализовано.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notImplementedError'
+    post:
+      tags: [budgets]
+      summary: Создание бюджета (не реализовано)
+      description: >
+        Планируется создание бюджета для текущего пользователя. Тело уже
+        валидируется схемой `createBudgetInput`, но обработчик — заглушка, возвращает 501.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createBudgetInput'
+      responses:
+        "400":
+          description: Ошибка валидации данных.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationError'
+        "501":
+          description: Не реализовано.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notImplementedError'
+
+  /budgets/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      tags: [budgets]
+      summary: Обновление бюджета (не реализовано)
+      description: >
+        Планируется частичное обновление бюджета. Тело уже валидируется
+        схемой `updateBudgetInput`, но обработчик — заглушка, возвращает 501.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updateBudgetInput'
+      responses:
+        "400":
+          description: Ошибка валидации данных.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationError'
+        "501":
+          description: Не реализовано.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notImplementedError'
+    delete:
+      tags: [budgets]
+      summary: Удаление бюджета (не реализовано)
+      description: Планируется удаление бюджета. Сейчас — заглушка, возвращает 501.
+      security:
+        - cookieAuth: []
+      responses:
+        "501":
+          description: Не реализовано.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notImplementedError'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken
+      description: JWT, httpOnly cookie, payload `{ sub: userId, email }`.
+
+  schemas:
+    # ---- envelopes ----
+    successFlagResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: true
+
+    # ---- errors ----
+    validationError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Validation failed
+            details:
+              type: object
+              description: Результат Zod `error.flatten()`.
+
+    conflictError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Email already registered
+
+    unauthorizedError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Unauthorized
+
+    notFoundError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Not found
+
+    notImplementedError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Not Implemented
+
+    serverError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Internal Server Error
+
+    # ---- auth ----
+    registerInput:
+      type: object
+      required: [email, password, name]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+
+    loginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 1
+
+    # ---- user ----
+    user:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    userResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/user'
+
+    # ---- category ----
+    category:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        name:
+          type: string
+        color:
+          type: string
+          example: "#22C55E"
+        icon:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    createCategoryInput:
+      type: object
+      required: [name, color]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        color:
+          type: string
+          pattern: "^#[0-9a-fA-F]{6}$"
+        icon:
+          type: string
+          maxLength: 50
+
+    updateCategoryInput:
+      type: object
+      description: Все поля опциональны (частичное обновление).
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        color:
+          type: string
+          pattern: "^#[0-9a-fA-F]{6}$"
+        icon:
+          type: string
+          maxLength: 50
+
+    categoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            category:
+              $ref: '#/components/schemas/category'
+
+    paginatedCategoriesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/category'
+            total:
+              type: integer
+            page:
+              type: integer
+            pageSize:
+              type: integer
+
+    # ---- expense (планируемая форма, эндпоинты — заглушки) ----
+    currency:
+      type: string
+      enum: [USD, EUR, GBP, PLN, JPY]
+
+    expense:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        categoryId:
+          type: string
+        amount:
+          type: number
+        currency:
+          $ref: '#/components/schemas/currency'
+        description:
+          type: string
+          nullable: true
+        date:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    createExpenseInput:
+      type: object
+      required: [categoryId, amount, currency, date]
+      properties:
+        categoryId:
+          type: string
+          minLength: 1
+        amount:
+          type: number
+          minimum: 0.01
+          maximum: 1000000
+        currency:
+          $ref: '#/components/schemas/currency'
+        description:
+          type: string
+          maxLength: 280
+        date:
+          type: string
+          format: date-time
+
+    updateExpenseInput:
+      type: object
+      description: Все поля опциональны (частичное обновление).
+      properties:
+        categoryId:
+          type: string
+          minLength: 1
+        amount:
+          type: number
+          minimum: 0.01
+          maximum: 1000000
+        currency:
+          $ref: '#/components/schemas/currency'
+        description:
+          type: string
+          maxLength: 280
+        date:
+          type: string
+          format: date-time
+
+    expenseResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            expense:
+              $ref: '#/components/schemas/expense'
+
+    # ---- budget (планируемая форма, эндпоинты — заглушки) ----
+    budgetPeriod:
+      type: string
+      enum: [weekly, monthly, yearly]
+
+    budget:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        categoryId:
+          type: string
+          nullable: true
+        amount:
+          type: number
+        currency:
+          $ref: '#/components/schemas/currency'
+        period:
+          $ref: '#/components/schemas/budgetPeriod'
+        startDate:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    createBudgetInput:
+      type: object
+      required: [amount, currency, period, startDate]
+      properties:
+        categoryId:
+          type: string
+          minLength: 1
+        amount:
+          type: number
+          minimum: 0.01
+          maximum: 1000000
+        currency:
+          $ref: '#/components/schemas/currency'
+        period:
+          $ref: '#/components/schemas/budgetPeriod'
+        startDate:
+          type: string
+          format: date-time
+
+    updateBudgetInput:
+      type: object
+      description: Все поля опциональны (частичное обновление).
+      properties:
+        categoryId:
+          type: string
+          minLength: 1
+        amount:
+          type: number
+          minimum: 0.01
+          maximum: 1000000
+        currency:
+          $ref: '#/components/schemas/currency'
+        period:
+          $ref: '#/components/schemas/budgetPeriod'
+        startDate:
+          type: string
+          format: date-time
+
+    budgetResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            budget:
+              $ref: '#/components/schemas/budget'
