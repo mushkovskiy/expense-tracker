@@ -21,4 +21,7 @@ export const API_ROUTES = {
     BASE: '/budgets',
     BY_ID: (id: string) => `/budgets/${id}`,
   },
+  ANALYTICS: {
+    OVERVIEW: '/analytics/overview',
+  },
 } as const;

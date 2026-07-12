@@ -4,3 +4,27 @@ html,
 body {
   height: 100%;
 }
+
+body {
+  font-family: var(--font-body), sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+:root {
+  --chart-1: var(--jade-9);
+  --chart-2: var(--iris-9);
+  --chart-3: var(--amber-9);
+  --chart-4: var(--ruby-9);
+  --chart-5: var(--cyan-9);
+  --chart-6: var(--plum-9);
+  --delta-positive: var(--jade-11);
+  --delta-negative: var(--red-11);
+}

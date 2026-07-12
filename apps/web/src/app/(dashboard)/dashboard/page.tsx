@@ -1,8 +1,14 @@
-import { CategoryMenu } from '@/components/category-menu';
-import { ProfileCard } from '@/components/profile-card';
+import { CategoryDonut } from '@/components/dashboard/category-donut';
+import { DashboardHeader } from '@/components/dashboard/dashboard-header';
+import { MonthlyBarChart } from '@/components/dashboard/monthly-bar-chart';
+import { OverviewProvider } from '@/components/dashboard/overview-provider';
+import { StatCard } from '@/components/dashboard/stat-card';
+import { TransactionsTable } from '@/components/dashboard/transactions-table';
+import { TrendLineChart } from '@/components/dashboard/trend-line-chart';
 import { getCurrentUser } from '@/lib/auth';
-import { Card, Flex, Grid, Heading, Text } from '@radix-ui/themes';
+import { Flex, Grid } from '@radix-ui/themes';
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -12,35 +18,29 @@ export default async function DashboardPage() {
   }
 
   return (
-    <Flex direction="column" gap="6">
-      <Heading size="7">Welcome back, {user.name}</Heading>
+    <Suspense>
+      <OverviewProvider>
+        <Flex direction="column" gap="5">
+          <DashboardHeader name={user.name} />
 
-      <ProfileCard user={user} />
+          <Grid columns={{ initial: '1', md: '2' }} gap="4">
+            <Flex direction="column" gap="4">
+              <MonthlyBarChart />
+              <TrendLineChart />
+            </Flex>
 
-      <CategoryMenu />
+            <Flex direction="column" gap="4">
+              <Grid columns="2" gap="4">
+                <StatCard label="Total spent" kind="total" />
+                <StatCard label="Avg / month" kind="average" />
+              </Grid>
+              <CategoryDonut />
+            </Flex>
+          </Grid>
 
-      <Grid columns={{ initial: '1', sm: '2' }} gap="3">
-        <Card size="3">
-          <Flex direction="column" gap="1">
-            <Text size="2" color="gray">
-              Total spent
-            </Text>
-            <Text size="5" weight="bold">
-              Coming soon
-            </Text>
-          </Flex>
-        </Card>
-        <Card size="3">
-          <Flex direction="column" gap="1">
-            <Text size="2" color="gray">
-              Budgets
-            </Text>
-            <Text size="5" weight="bold">
-              Coming soon
-            </Text>
-          </Flex>
-        </Card>
-      </Grid>
-    </Flex>
+          <TransactionsTable pageSize={5} />
+        </Flex>
+      </OverviewProvider>
+    </Suspense>
   );
 }

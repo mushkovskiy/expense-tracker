@@ -15,7 +15,9 @@ function createMockResponse(): Response {
 describe('auth cookie utils', () => {
   it('sets the auth cookie with a maxAge derived from the token exp claim', () => {
     const res = createMockResponse();
-    const token = jwt.sign({ sub: 'user-1' }, process.env.JWT_SECRET as string, { expiresIn: '1h' });
+    const token = jwt.sign({ sub: 'user-1' }, process.env.JWT_SECRET as string, {
+      expiresIn: '1h',
+    });
 
     setAuthCookie(res, token);
 

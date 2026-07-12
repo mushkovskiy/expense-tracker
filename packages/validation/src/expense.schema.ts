@@ -11,5 +11,21 @@ export const createExpenseSchema = z.object({
 
 export const updateExpenseSchema = createExpenseSchema.partial();
 
+export const expenseQuerySchema = z.object({
+  categoryId: z.string().min(1).optional(),
+  from: z.string().datetime().optional(),
+  to: z.string().datetime().optional(),
+  search: z.string().trim().min(1).max(100).optional(),
+  page: z.coerce.number().int().min(1).optional().default(1),
+  pageSize: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(LIMITS.PAGE_SIZE_MAX)
+    .optional()
+    .default(LIMITS.PAGE_SIZE_DEFAULT),
+});
+
 export type CreateExpenseInput = z.infer<typeof createExpenseSchema>;
 export type UpdateExpenseInput = z.infer<typeof updateExpenseSchema>;
+export type ExpenseQueryInput = z.infer<typeof expenseQuerySchema>;

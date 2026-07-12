@@ -5,7 +5,7 @@ import { ThemeProvider } from 'next-themes';
 
 function RadixThemeSync({ children }: { children: React.ReactNode }) {
   return (
-    <Theme accentColor="indigo" grayColor="slate" radius="medium">
+    <Theme accentColor="jade" grayColor="slate" radius="large">
       {children}
     </Theme>
   );
