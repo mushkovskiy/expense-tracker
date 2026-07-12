@@ -8,13 +8,17 @@ allowed-commands: Bash(git *)
 
 Create a git commit for the current changes following [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/).
 
-## Execution context
+Current repository status:
 
-```!
-git status
-git branch --show-current
-git log --oneline -10
-```
+!`git status`
+
+Current branch:
+
+!`git branch --show-current`
+
+Recent commit history:
+
+!`git log --oneline -10`
 
 ## Steps
 
