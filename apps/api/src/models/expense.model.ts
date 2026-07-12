@@ -1,9 +1,10 @@
 import { type Ref, getModelForClass, index, prop } from '@typegoose/typegoose';
+import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 import { Category } from './category.model';
 import { User } from './user.model';
 
 @index({ user: 1, date: -1 })
-export class Expense {
+export class Expense extends TimeStamps {
   @prop({ ref: () => User, required: true })
   public user!: Ref<User>;
 

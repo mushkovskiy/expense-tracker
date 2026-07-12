@@ -4,3 +4,4 @@ export * from './expense';
 export * from './budget';
 export * from './auth';
 export * from './api';
+export * from './analytics';

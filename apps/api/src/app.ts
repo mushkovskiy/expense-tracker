@@ -13,6 +13,7 @@ import './modules/users/user.controller';
 import './modules/expenses/expense.controller';
 import './modules/categories/category.controller';
 import './modules/budgets/budget.controller';
+import './modules/analytics/analytics.controller';
 
 const server = new InversifyExpressServer(container, null, { rootPath: '/api' });
 
