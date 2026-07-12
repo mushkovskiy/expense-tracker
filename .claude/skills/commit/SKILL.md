@@ -10,17 +10,11 @@ Create a git commit for the current changes following [Conventional Commits 1.0.
 
 ## Execution context
 
-Current repository status:
-
-!git status
-
-Current branch:
-
-!git branch --show-current
-
-Recent commit history:
-
-!git log --oneline -10
+```!
+git status
+git branch --show-current
+git log --oneline -10
+```
 
 ## Steps
 
