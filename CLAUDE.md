@@ -34,24 +34,14 @@ pnpm format           # Biome formatter
 
 Turbo runs tasks in dependency order. `dev` is `persistent` (long-running) with no cache.
 
-<important if="When you need to create a commit">
-## Commit conventions
+<important if="When you need to open a pull request">
+## Pull request conventions
 
-Follow [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) for every commit message:
-
-```
-<type>[optional scope]: <description>
-
-[optional body]
-
-[optional footer(s)]
-```
-
-- **type**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
-- **scope** (optional): the affected area, e.g. `api`, `web`, `auth`, `categories`
-- **description**: short, imperative, lowercase, no trailing period
-- Breaking changes: append `!` after the type/scope (`feat(api)!: ...`) and/or add a `BREAKING CHANGE:` footer
-- Body explains *why*, not *what* — the diff already shows what changed
+- **Title**: follow the same [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) format used for commit messages — `<type>[optional scope]: <description>`. When the branch has multiple commits, pick the type/scope that best represents the overall change.
+- **Description**: derive it from the full set of changes on the branch — every file changed or previously committed on the branch, not only the latest commit. Read the entire diff (`git diff <base-branch>...HEAD`) and the branch's commit log before writing it. Structure it as:
+  - **Summary**: a short bulleted list explaining *why* the change was made, synthesized across all commits and files in the diff
+  - **Test plan**: a checklist of what should be verified (manual steps, tests to run)
+- Do not just copy the last commit message into the PR description.
 </important>
 
 ## Branching workflow
