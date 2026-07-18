@@ -1,6 +1,9 @@
 {
   "permissions": {
-    "allow": ["Bash(git *)"],
+    "allow": [
+      "Bash(git *)",
+      "Bash(bash C:/Users/mid/Desktop/development/claude/expence-tracker/.claude/skills/*)"
+    ],
     "deny": ["Bash(git push)"],
     "ask": ["Bash(git commit *)"]
   },
